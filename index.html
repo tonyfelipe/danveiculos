@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-wrapper">
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="{{ url_for('index') }}" class="logo-link">
+                    <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="DAN Veículos" class="logo">
+                    <div class="logo-text">
+                        <h1 class="logo-title">DAN</h1>
+                        <p class="logo-subtitle">Repasse de Veículos</p>
+                    </div>
+                </a>
+                
+                {% if session.get('user_id') %}
+                    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline">Painel Admin</a>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <h2 class="hero-title">Veículos Revisados e Prontos para Rodar! 🚗✨</h2>
+            <p class="hero-subtitle">
+                Veículos com procedência, opções econômicas, completos e seminovos de qualidade. 
+                Aceitamos troca, facilitamos a entrada e aprovamos crédito rápido.
+            </p>
+            
+            <div class="info-cards">
+                <div class="info-card">
+                    <h3 class="info-card-title">📍 Endereço</h3>
+                    <p class="info-card-text">
+                        Rua Adolfo Eugênio Barsotini, 200<br>
+                        Nakamura Park, Cotia SP<br>
+                        CEP: 06716-737
+                    </p>
+                </div>
+                <div class="info-card">
+                    <h3 class="info-card-title">🕒 Horário de Funcionamento</h3>
+                    <p class="info-card-text">
+                        Segunda a Sexta: 9h às 18h<br>
+                        Sábado e Domingo: 9h às 16h
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Vehicles Grid -->
+    <main class="main-content">
+        <div class="container">
+            {% if vehicles %}
+                <div class="vehicles-grid">
+                    {% for vehicle in vehicles %}
+                        <a href="{{ url_for('vehicle_details', id=vehicle.id) }}" class="vehicle-card">
+                            <div class="vehicle-image">
+                                {% if vehicle.foto_principal %}
+                                    <img src="{{ url_for('static', filename='uploads/' + vehicle.foto_principal) }}" 
+                                         alt="{{ vehicle.marca }} {{ vehicle.modelo }}">
+                                {% else %}
+                                    <div class="vehicle-image-placeholder">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/>
+                                            <circle cx="6.5" cy="16.5" r="2.5"/>
+                                            <circle cx="16.5" cy="16.5" r="2.5"/>
+                                        </svg>
+                                    </div>
+                                {% endif %}
+                                {% if vehicle.status != 'disponivel' %}
+                                    <div class="vehicle-badge vehicle-badge-{{ vehicle.status }}">
+                                        {{ 'VENDIDO' if vehicle.status == 'vendido' else 'RESERVADO' }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="vehicle-info">
+                                <h3 class="vehicle-title">{{ vehicle.marca }} {{ vehicle.modelo }}</h3>
+                                <div class="vehicle-details">
+                                    <span>{{ vehicle.ano }}</span>
+                                    {% if vehicle.quilometragem %}
+                                        <span>{{ "{:,}".format(vehicle.quilometragem).replace(',', '.') }} km</span>
+                                    {% endif %}
+                                </div>
+                                <p class="vehicle-price">R$ {{ "{:,.2f}".format(vehicle.valor).replace(',', 'X').replace('.', ',').replace('X', '.') }}</p>
+                            </div>
+                            <div class="vehicle-footer">
+                                <button class="btn btn-outline btn-block">Ver Detalhes</button>
+                            </div>
+                        </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/>
+                        <circle cx="6.5" cy="16.5" r="2.5"/>
+                        <circle cx="16.5" cy="16.5" r="2.5"/>
+                    </svg>
+                    <h3>Nenhum veículo disponível</h3>
+                    <p>Em breve teremos novos veículos para você</p>
+                </div>
+            {% endif %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <h3 class="footer-title">DAN Veículos</h3>
+                    <p class="footer-text">Repasse de veículos com qualidade e procedência garantida.</p>
+                </div>
+                <div class="footer-col">
+                    <h3 class="footer-title">Contato</h3>
+                    <p class="footer-text">
+                        Rua Adolfo Eugênio Barsotini, 200<br>
+                        Nakamura Park, Cotia SP<br>
+                        CEP: 06716-737
+                    </p>
+                </div>
+                <div class="footer-col">
+                    <h3 class="footer-title">Horário</h3>
+                    <p class="footer-text">
+                        Seg a Sex: 9h às 18h<br>
+                        Sáb e Dom: 9h às 16h
+                    </p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 DAN Veículos - Repasse de Veículos. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+</div>
+{% endblock %}

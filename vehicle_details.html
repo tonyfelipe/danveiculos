@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block title %}{{ vehicle.marca }} {{ vehicle.modelo }} - DAN Veículos{% endblock %}
+
+{% block content %}
+<div class="page-wrapper">
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="{{ url_for('index') }}" class="logo-link">
+                    <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="DAN Veículos" class="logo">
+                    <div class="logo-text">
+                        <h1 class="logo-title">DAN</h1>
+                        <p class="logo-subtitle">Repasse de Veículos</p>
+                    </div>
+                </a>
+                
+                <a href="{{ url_for('index') }}" class="btn btn-outline">← Voltar</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="vehicle-details-grid">
+                <!-- Gallery -->
+                <div class="gallery-section">
+                    <div class="gallery-main">
+                        {% if photos %}
+                            <img id="mainPhoto" src="{{ url_for('static', filename='uploads/' + photos[0].filename) }}" 
+                                 alt="{{ vehicle.marca }} {{ vehicle.modelo }}">
+                            {% if photos|length > 1 %}
+                                <button class="gallery-nav gallery-nav-prev" onclick="changePhoto(-1)">‹</button>
+                                <button class="gallery-nav gallery-nav-next" onclick="changePhoto(1)">›</button>
+                                <div class="gallery-counter">
+                                    <span id="photoCounter">1</span> / {{ photos|length }}
+                                </div>
+                            {% endif %}
+                        {% else %}
+                            <div class="gallery-placeholder">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/>
+                                    <circle cx="6.5" cy="16.5" r="2.5"/>
+                                    <circle cx="16.5" cy="16.5" r="2.5"/>
+                                </svg>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    {% if photos|length > 1 %}
+                        <div class="gallery-thumbnails">
+                            {% for photo in photos %}
+                                <button class="gallery-thumbnail {% if loop.index == 1 %}active{% endif %}" 
+                                        onclick="setPhoto({{ loop.index - 1 }})">
+                                    <img src="{{ url_for('static', filename='uploads/' + photo.filename) }}" 
+                                         alt="Foto {{ loop.index }}">
+                                </button>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Info -->
+                <div class="info-section">
+                    <div class="vehicle-header">
+                        <h1 class="vehicle-details-title">{{ vehicle.marca }} {{ vehicle.modelo }}</h1>
+                        <p class="vehicle-details-price">
+                            R$ {{ "{:,.2f}".format(vehicle.valor).replace(',', 'X').replace('.', ',').replace('X', '.') }}
+                        </p>
+                    </div>
+
+                    <div class="specs-card">
+                        <h2 class="specs-title">Especificações</h2>
+                        <div class="specs-grid">
+                            <div class="spec-item">
+                                <span class="spec-label">Ano</span>
+                                <span class="spec-value">{{ vehicle.ano }}</span>
+                            </div>
+                            {% if vehicle.quilometragem %}
+                                <div class="spec-item">
+                                    <span class="spec-label">Quilometragem</span>
+                                    <span class="spec-value">{{ "{:,}".format(vehicle.quilometragem).replace(',', '.') }} km</span>
+                                </div>
+                            {% endif %}
+                            {% if vehicle.cor %}
+                                <div class="spec-item">
+                                    <span class="spec-label">Cor</span>
+                                    <span class="spec-value">{{ vehicle.cor }}</span>
+                                </div>
+                            {% endif %}
+                            {% if vehicle.combustivel %}
+                                <div class="spec-item">
+                                    <span class="spec-label">Combustível</span>
+                                    <span class="spec-value">{{ vehicle.combustivel }}</span>
+                                </div>
+                            {% endif %}
+                            {% if vehicle.cambio %}
+                                <div class="spec-item">
+                                    <span class="spec-label">Câmbio</span>
+                                    <span class="spec-value">{{ vehicle.cambio }}</span>
+                                </div>
+                            {% endif %}
+                            <div class="spec-item">
+                                <span class="spec-label">Status</span>
+                                <span class="spec-value spec-status-{{ vehicle.status }}">
+                                    {{ vehicle.status|capitalize }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if vehicle.descricao %}
+                        <div class="description-card">
+                            <h2 class="description-title">Descrição</h2>
+                            <p class="description-text">{{ vehicle.descricao }}</p>
+                        </div>
+                    {% endif %}
+
+                    <div class="contact-card">
+                        <h2 class="contact-title">Interessado?</h2>
+                        <p class="contact-text">Entre em contato conosco para mais informações sobre este veículo</p>
+                        <button class="btn btn-primary btn-block btn-lg">Entrar em Contato</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+let currentPhotoIndex = 0;
+const photos = [
+    {% for photo in photos %}
+        "{{ url_for('static', filename='uploads/' + photo.filename) }}"{% if not loop.last %},{% endif %}
+    {% endfor %}
+];
+
+function setPhoto(index) {
+    currentPhotoIndex = index;
+    document.getElementById('mainPhoto').src = photos[index];
+    document.getElementById('photoCounter').textContent = index + 1;
+    
+    // Update thumbnails
+    document.querySelectorAll('.gallery-thumbnail').forEach((thumb, i) => {
+        thumb.classList.toggle('active', i === index);
+    });
+}
+
+function changePhoto(direction) {
+    currentPhotoIndex += direction;
+    if (currentPhotoIndex < 0) currentPhotoIndex = photos.length - 1;
+    if (currentPhotoIndex >= photos.length) currentPhotoIndex = 0;
+    setPhoto(currentPhotoIndex);
+}
+</script>
+{% endblock %}

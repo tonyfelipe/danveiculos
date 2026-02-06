@@ -1,0 +1,226 @@
+{% extends "base.html" %}
+
+{% block title %}{% if vehicle %}Editar{% else %}Adicionar{% endif %} Veículo - DAN Veículos{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+    <!-- Sidebar (same as dashboard) -->
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar-header">
+            <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="DAN" class="admin-logo">
+            <div>
+                <h2 class="admin-brand">DAN Veículos</h2>
+                <p class="admin-subtitle">Painel Admin</p>
+            </div>
+        </div>
+
+        <nav class="admin-nav">
+            <a href="{{ url_for('admin_dashboard') }}" class="admin-nav-item active">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/>
+                    <circle cx="6.5" cy="16.5" r="2.5"/>
+                    <circle cx="16.5" cy="16.5" r="2.5"/>
+                </svg>
+                Veículos
+            </a>
+            <a href="{{ url_for('index') }}" class="admin-nav-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+                Ver Site
+            </a>
+        </nav>
+
+        <div class="admin-user">
+            <div class="admin-user-info">
+                <p class="admin-user-name">{{ session.name }}</p>
+                <p class="admin-user-role">Administrador</p>
+            </div>
+            <a href="{{ url_for('logout') }}" class="admin-logout">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                    <polyline points="16 17 21 12 16 7"/>
+                    <line x1="21" x2="9" y1="12" y2="12"/>
+                </svg>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+        <div class="admin-header">
+            <div>
+                <h1 class="admin-title">{% if vehicle %}Editar{% else %}Adicionar{% endif %} Veículo</h1>
+                <p class="admin-description">Preencha os dados do veículo</p>
+            </div>
+            <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline">← Voltar</a>
+        </div>
+
+        <div class="admin-content">
+            <form method="POST" enctype="multipart/form-data" class="vehicle-form">
+                <div class="form-section">
+                    <h2 class="form-section-title">Informações Básicas</h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="marca" class="form-label">Marca *</label>
+                            <input type="text" id="marca" name="marca" class="form-input" 
+                                   value="{{ vehicle.marca if vehicle else '' }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="modelo" class="form-label">Modelo *</label>
+                            <input type="text" id="modelo" name="modelo" class="form-input" 
+                                   value="{{ vehicle.modelo if vehicle else '' }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="ano" class="form-label">Ano *</label>
+                            <input type="number" id="ano" name="ano" class="form-input" 
+                                   value="{{ vehicle.ano if vehicle else '' }}" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="valor" class="form-label">Valor (R$) *</label>
+                            <input type="number" step="0.01" id="valor" name="valor" class="form-input" 
+                                   value="{{ vehicle.valor if vehicle else '' }}" required>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2 class="form-section-title">Detalhes do Veículo</h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="quilometragem" class="form-label">Quilometragem (km)</label>
+                            <input type="number" id="quilometragem" name="quilometragem" class="form-input" 
+                                   value="{{ vehicle.quilometragem if vehicle else '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="cor" class="form-label">Cor</label>
+                            <input type="text" id="cor" name="cor" class="form-input" 
+                                   value="{{ vehicle.cor if vehicle else '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="combustivel" class="form-label">Combustível</label>
+                            <input type="text" id="combustivel" name="combustivel" class="form-input" 
+                                   value="{{ vehicle.combustivel if vehicle else '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label for="cambio" class="form-label">Câmbio</label>
+                            <input type="text" id="cambio" name="cambio" class="form-input" 
+                                   value="{{ vehicle.cambio if vehicle else '' }}">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2 class="form-section-title">Status e Descrição</h2>
+                    <div class="form-group">
+                        <label for="status" class="form-label">Status</label>
+                        <select id="status" name="status" class="form-input">
+                            <option value="disponivel" {% if vehicle and vehicle.status == 'disponivel' %}selected{% endif %}>Disponível</option>
+                            <option value="reservado" {% if vehicle and vehicle.status == 'reservado' %}selected{% endif %}>Reservado</option>
+                            <option value="vendido" {% if vehicle and vehicle.status == 'vendido' %}selected{% endif %}>Vendido</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="descricao" class="form-label">Descrição</label>
+                        <textarea id="descricao" name="descricao" class="form-textarea" rows="4">{{ vehicle.descricao if vehicle else '' }}</textarea>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h2 class="form-section-title">Fotos</h2>
+                    
+                    {% if vehicle and photos %}
+                        <div class="current-photos">
+                            <h3 class="current-photos-title">Fotos Atuais</h3>
+                            <div class="photos-grid">
+                                {% for photo in photos %}
+                                    <div class="photo-item" id="photo-{{ photo.id }}">
+                                        <img src="{{ url_for('static', filename='uploads/' + photo.filename) }}" alt="Foto {{ loop.index }}">
+                                        <button type="button" class="photo-delete" onclick="deletePhoto({{ photo.id }})">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                <path d="M3 6h18"/>
+                                                <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                                                <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+
+                    <div class="form-group">
+                        <label for="photos" class="form-label">{% if vehicle %}Adicionar Novas Fotos{% else %}Fotos do Veículo{% endif %}</label>
+                        <div class="file-upload">
+                            <input type="file" id="photos" name="photos" accept="image/*" multiple class="file-input" onchange="previewFiles(this)">
+                            <label for="photos" class="file-label">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="17 8 12 3 7 8"/>
+                                    <line x1="12" x2="12" y1="3" y2="15"/>
+                                </svg>
+                                <span>Clique para selecionar fotos ou arraste aqui</span>
+                            </label>
+                        </div>
+                        <div id="preview" class="photos-preview"></div>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <a href="{{ url_for('admin_dashboard') }}" class="btn btn-outline">Cancelar</a>
+                    <button type="submit" class="btn btn-primary">
+                        {% if vehicle %}Salvar Alterações{% else %}Criar Veículo{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
+
+<script>
+function previewFiles(input) {
+    const preview = document.getElementById('preview');
+    preview.innerHTML = '';
+    
+    if (input.files) {
+        Array.from(input.files).forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const div = document.createElement('div');
+                div.className = 'preview-item';
+                div.innerHTML = `
+                    <img src="${e.target.result}" alt="Preview ${index + 1}">
+                    <button type="button" class="preview-remove" onclick="removePreview(this, ${index})">×</button>
+                `;
+                preview.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+}
+
+function removePreview(button, index) {
+    button.parentElement.remove();
+    // Note: This doesn't actually remove from file input, just from preview
+}
+
+async function deletePhoto(photoId) {
+    if (!confirm('Tem certeza que deseja excluir esta foto?')) return;
+    
+    try {
+        const response = await fetch(`/admin/foto/${photoId}/excluir`, {
+            method: 'POST'
+        });
+        
+        if (response.ok) {
+            document.getElementById(`photo-${photoId}`).remove();
+        } else {
+            alert('Erro ao excluir foto');
+        }
+    } catch (error) {
+        alert('Erro ao excluir foto');
+    }
+}
+</script>
+{% endblock %}

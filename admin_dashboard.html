@@ -1,0 +1,168 @@
+{% extends "base.html" %}
+
+{% block title %}Painel Admin - DAN Veículos{% endblock %}
+
+{% block content %}
+<div class="admin-page">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar-header">
+            <img src="{{ url_for('static', filename='logo.jpeg') }}" alt="DAN" class="admin-logo">
+            <div>
+                <h2 class="admin-brand">DAN Veículos</h2>
+                <p class="admin-subtitle">Painel Admin</p>
+            </div>
+        </div>
+
+        <nav class="admin-nav">
+            <a href="{{ url_for('admin_dashboard') }}" class="admin-nav-item active">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/>
+                    <circle cx="6.5" cy="16.5" r="2.5"/>
+                    <circle cx="16.5" cy="16.5" r="2.5"/>
+                </svg>
+                Veículos
+            </a>
+            <a href="{{ url_for('index') }}" class="admin-nav-item">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                    <polyline points="9 22 9 12 15 12 15 22"/>
+                </svg>
+                Ver Site
+            </a>
+        </nav>
+
+        <div class="admin-user">
+            <div class="admin-user-info">
+                <p class="admin-user-name">{{ session.name }}</p>
+                <p class="admin-user-role">Administrador</p>
+            </div>
+            <a href="{{ url_for('logout') }}" class="admin-logout">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                    <polyline points="16 17 21 12 16 7"/>
+                    <line x1="21" x2="9" y1="12" y2="12"/>
+                </svg>
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+        <div class="admin-header">
+            <div>
+                <h1 class="admin-title">Gerenciar Veículos</h1>
+                <p class="admin-description">Adicione, edite ou remova veículos do seu estoque</p>
+            </div>
+            <a href="{{ url_for('admin_new_vehicle') }}" class="btn btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12h14"/>
+                    <path d="M12 5v14"/>
+                </svg>
+                Adicionar Veículo
+            </a>
+        </div>
+
+        <div class="admin-content">
+            {% if vehicles %}
+                <div class="admin-grid">
+                    {% for vehicle in vehicles %}
+                        <div class="admin-card">
+                            <div class="admin-card-image">
+                                {% if vehicle.foto_principal %}
+                                    <img src="{{ url_for('static', filename='uploads/' + vehicle.foto_principal) }}" 
+                                         alt="{{ vehicle.marca }} {{ vehicle.modelo }}">
+                                {% else %}
+                                    <div class="admin-card-placeholder">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                            <path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/>
+                                            <circle cx="6.5" cy="16.5" r="2.5"/>
+                                            <circle cx="16.5" cy="16.5" r="2.5"/>
+                                        </svg>
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="admin-card-body">
+                                <h3 class="admin-card-title">{{ vehicle.marca }} {{ vehicle.modelo }}</h3>
+                                <div class="admin-card-details">
+                                    <p>Ano: {{ vehicle.ano }}</p>
+                                    <p class="admin-card-price">R$ {{ "{:,.2f}".format(vehicle.valor).replace(',', 'X').replace('.', ',').replace('X', '.') }}</p>
+                                    <p class="admin-card-status admin-card-status-{{ vehicle.status }}">
+                                        Status: {{ vehicle.status|capitalize }}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="admin-card-footer">
+                                <a href="{{ url_for('admin_edit_vehicle', id=vehicle.id) }}" class="btn btn-outline btn-sm">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/>
+                                    </svg>
+                                    Editar
+                                </a>
+                                <button onclick="confirmDelete({{ vehicle.id }}, '{{ vehicle.marca }} {{ vehicle.modelo }}')" 
+                                        class="btn btn-danger btn-sm">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <path d="M3 6h18"/>
+                                        <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                                        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="admin-empty">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M14 16H9m10 0h3v-3.15a1 1 0 0 0-.84-.99L16 11l-2.7-3.6a1 1 0 0 0-.8-.4H5.24a2 2 0 0 0-1.8 1.1l-.8 1.63A6 6 0 0 0 2 12.42V16h2"/>
+                        <circle cx="6.5" cy="16.5" r="2.5"/>
+                        <circle cx="16.5" cy="16.5" r="2.5"/>
+                    </svg>
+                    <h3>Nenhum veículo cadastrado</h3>
+                    <p>Comece adicionando seu primeiro veículo</p>
+                    <a href="{{ url_for('admin_new_vehicle') }}" class="btn btn-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M5 12h14"/>
+                            <path d="M12 5v14"/>
+                        </svg>
+                        Adicionar Veículo
+                    </a>
+                </div>
+            {% endif %}
+        </div>
+    </main>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <h3 class="modal-title">Confirmar Exclusão</h3>
+        <p class="modal-text">Tem certeza que deseja excluir <strong id="vehicleName"></strong>? Esta ação não pode ser desfeita.</p>
+        <div class="modal-actions">
+            <button onclick="closeDeleteModal()" class="btn btn-outline">Cancelar</button>
+            <form id="deleteForm" method="POST" style="display: inline;">
+                <button type="submit" class="btn btn-danger">Excluir</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete(id, name) {
+    document.getElementById('vehicleName').textContent = name;
+    document.getElementById('deleteForm').action = `/admin/veiculo/${id}/excluir`;
+    document.getElementById('deleteModal').style.display = 'flex';
+}
+
+function closeDeleteModal() {
+    document.getElementById('deleteModal').style.display = 'none';
+}
+
+// Close modal on outside click
+document.getElementById('deleteModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+        closeDeleteModal();
+    }
+});
+</script>
+{% endblock %}
